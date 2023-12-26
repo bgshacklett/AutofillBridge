@@ -6,7 +6,6 @@ use icrate::AppKit::{
     NSStatusBar,
     NSApplication,
     NSApplicationMain,
-    NSApplicationActivationPolicyRegular,
     NSApplicationDelegate,
     NSMenuItem,
     NSSquareStatusItemLength,
@@ -152,7 +151,6 @@ fn main() -> Result<(), NulError> {
     let mtm: MainThreadMarker = MainThreadMarker::new().unwrap();
 
     let app = NSApplication::sharedApplication(mtm);
-    app.setActivationPolicy(NSApplicationActivationPolicyRegular);
 
     // configure the application delegate
     let delegate = AppDelegate::new(mtm.clone());
