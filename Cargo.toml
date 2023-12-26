@@ -1,0 +1,28 @@
+[workspace]
+
+[package]
+name = "autofill_bridge"
+version = "0.1.0"
+edition = "2021"
+description = "A macOS menubar application for managing autofill credentials"
+authors = ["Brian G. Shacklett <brian@digital-traffic.net>"]
+license = "MIT"
+
+[dependencies]
+embed_plist = "1.2.2"
+icrate = { git = "https://github.com/madsmtm/objc2.git", rev = "41c54596", optional = false, features = [ 
+    "AppKit",
+    "AppKit_all",
+    "Foundation",
+    "Foundation_all",
+    "AuthenticationServices_all",
+] }
+objc2 = { git = "https://github.com/madsmtm/objc2.git", rev = "41c54596"}
+libc = "0.2.151"
+
+[package.metadata.bundle]
+name = "autofill_bridge"  # The name of your app
+identifier = "net.digital-traffic.autofillbridge"
+icon = ["icons/icon.png"]  # Path to your app's icon
+version = "0.1.0"  # Your app's version
+osx_frameworks = ["AuthenticationServices"]
