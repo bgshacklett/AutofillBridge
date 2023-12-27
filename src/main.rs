@@ -123,45 +123,20 @@ impl AppDelegate {
 
 
 // Main entry point
-fn main() -> Result<(), NulError> {
-    embed_plist::embed_info_plist!("Info.plist");
-
-    let args: Vec<String> = env::args().collect();
-    let c_args: Vec<CString> = args.into_iter()
-        .map(CString::new)
-        .collect::<Result<Vec<_>, _>>()?;
-
-    let argv: Vec<*const c_char> = c_args.iter()
-        .map(|arg| arg.as_ptr())
-        .collect();
-
-    // Determine argc from the length of the argv vector
-    let argc = argv.len() as i32;
-
-    // Ensure all pointers are non-null and convert to NonNull<c_char>
-    let non_null_argv: Vec<NonNull<c_char>> = argv.iter()
-        .map(|&arg| NonNull::new(arg as *mut c_char).expect("Null pointer in argv"))
-        .collect();
-
-    // Convert the vector of NonNull<c_char> to NonNull<NonNull<c_char>>
-    let argv = NonNull::new(non_null_argv.as_ptr() as *mut NonNull<c_char>)
-        .expect("Null pointer in argv array");
-
-
+fn main() {
     let mtm: MainThreadMarker = MainThreadMarker::new().unwrap();
 
     let app = NSApplication::sharedApplication(mtm);
+
+
+
+
+
 
     // configure the application delegate
     let delegate = AppDelegate::new(mtm.clone());
     let object = ProtocolObject::from_ref(&*delegate);
     app.setDelegate(Some(object));
 
-
-    let result = autoreleasepool(|_| {
-        unsafe { NSApplicationMain(argc, argv) }
-    });
-
-    // You can handle the result if needed, or directly exit
-    process::exit(result);
+    unsafe { app.run() };
 }
