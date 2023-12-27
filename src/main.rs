@@ -1,27 +1,18 @@
 #![deny(unsafe_op_in_unsafe_fn)]
 use icrate::AppKit::{
-    NSMenu,
-    NSImage,
-    // NSVariableStatusItemLength,
-    NSStatusBar,
     NSApplication,
     NSApplicationDelegate,
-    NSMenuItem,
-    NSSquareStatusItemLength,
 };
 use icrate::Foundation::{
     MainThreadMarker,
     NSNotification,
     NSObject,
     NSObjectProtocol,
-    NSString,
 };
 
-use objc2::runtime::{ProtocolObject};
+use objc2::runtime::ProtocolObject;
 use objc2::rc::Id;
 use objc2::{
-    sel,
-    msg_send,
     declare_class,
     msg_send_id,
     mutability,
@@ -59,41 +50,6 @@ declare_class!(
     unsafe impl NSApplicationDelegate for AppDelegate {
         #[method(applicationDidFinishLaunching:)]
         fn did_finish_launching(&self, notification: &NSNotification) {
-            let ivars = self.ivars();
-            let mtm = &ivars.mtm;
-
-            let status_bar = unsafe { NSStatusBar::systemStatusBar() };
-            let main_status_item = unsafe {
-                status_bar.statusItemWithLength(NSSquareStatusItemLength)
-            };
-
-            unsafe {
-                main_status_item.button(*mtm).expect("REASON").setImage(
-                    NSImage::imageNamed(&*NSString::from_str("test")).as_deref()
-                );
-            }
-
-            let menu = NSMenu::new(*mtm);
-
-            let title_str = NSString::from_str("Do Something");
-            let key_equiv_str = NSString::from_str("");
-
-            let alloc_menu_item: *mut NSMenuItem = unsafe {
-                msg_send![NSMenuItem::class(), alloc]
-            };
-            let menu_item: *mut NSMenuItem = unsafe {
-                msg_send![alloc_menu_item, initWithTitle:title_str.as_ref(),
-                                           action:sel!(doSomething:),
-                                           keyEquivalent:key_equiv_str.as_ref()]
-            };
-            let menu_item: Id<NSMenuItem> = unsafe {
-                Id::new(menu_item).unwrap()
-            };
-
-            unsafe {main_status_item.setMenu(Some(menu.as_ref()))};
-
-            menu.addItem(menu_item.as_ref());
-
             // Do something with the notification
             dbg!(notification);
         }
