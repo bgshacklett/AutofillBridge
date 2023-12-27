@@ -20,8 +20,8 @@
 	<!-- <string></string> -->
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
-	<!-- <key>LSUIElement</key> -->
-	<!-- <true/> <!-1- This makes the app a background app with no Dock icon -1-> -->
+	<key>LSUIElement</key>
+	<true/> <!-- This makes the app a background app with no Dock icon -->
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
 	<key>NSPrincipalClass</key>
