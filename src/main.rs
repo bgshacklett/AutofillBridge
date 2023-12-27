@@ -5,7 +5,6 @@ use icrate::AppKit::{
     // NSVariableStatusItemLength,
     NSStatusBar,
     NSApplication,
-    NSApplicationMain,
     NSApplicationDelegate,
     NSMenuItem,
     NSSquareStatusItemLength,
@@ -19,7 +18,7 @@ use icrate::Foundation::{
 };
 
 use objc2::runtime::{ProtocolObject};
-use objc2::rc::{autoreleasepool, Id};
+use objc2::rc::Id;
 use objc2::{
     sel,
     msg_send,
@@ -30,11 +29,6 @@ use objc2::{
     DeclaredClass,
 };
 
-use std::env;
-use std::ffi::{CString, NulError};
-use std::os::raw::c_char;
-use std::ptr::NonNull;
-use std::process;
 
 #[derive(Debug)]
 #[allow(unused)]
