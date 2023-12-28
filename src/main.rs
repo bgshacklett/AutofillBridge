@@ -30,7 +30,7 @@ use objc2::{
 
 use std::env;
 use std::ffi::{CString, NulError};
-use std::os::raw::c_char;
+use std::os::raw::{c_char, c_int};
 use std::ptr::NonNull;
 use std::process;
 
@@ -108,6 +108,44 @@ fn main() -> Result<(), NulError> {
     embed_plist::embed_info_plist!("Info.plist");
 
     let args: Vec<String> = env::args().collect();
+
+    let c_args = translate_args(args);
+
+    let mtm: MainThreadMarker = MainThreadMarker::new().unwrap();
+    let app = NSApplication::sharedApplication(mtm);
+
+    let status_bar = unsafe { NSStatusBar::systemStatusBar() };
+    let main_status_item = unsafe {
+        status_bar.statusItemWithLength(NSSquareStatusItemLength)
+    };
+
+
+    unsafe {
+        main_status_item
+            .button(mtm)
+            .expect("Could not retrieve button from NSStatusItem")
+            .setTitle(NSString::from_str("A").as_ref())
+    };
+
+    // configure the application delegate
+    let delegate = AppDelegate::new(mtm.clone(), main_status_item.clone());
+    let object = ProtocolObject::from_ref(delegate.as_ref());
+    app.setDelegate(Some(object));
+
+
+    let result = autoreleasepool(|_| {
+        unsafe { NSApplicationMain(
+            c_args.as_ref().unwrap().0,
+            c_args.as_ref().unwrap().1,
+        ) }
+    });
+
+    // You can handle the result if needed, or directly exit
+    process::exit(result);
+}
+
+
+fn translate_args(args: Vec<String>) -> Result<(c_int, NonNull<NonNull<c_char>>), Box<dyn std::error::Error>> {
     let c_args: Vec<CString> = args.into_iter()
         .map(CString::new)
         .collect::<Result<Vec<_>, _>>()?;
@@ -128,32 +166,5 @@ fn main() -> Result<(), NulError> {
     let argv = NonNull::new(non_null_argv.as_ptr() as *mut NonNull<c_char>)
         .expect("Null pointer in argv array");
 
-    let status_bar = unsafe { NSStatusBar::systemStatusBar() };
-    let main_status_item = unsafe {
-        status_bar.statusItemWithLength(NSSquareStatusItemLength)
-    };
-
-
-    let mtm: MainThreadMarker = MainThreadMarker::new().unwrap();
-
-    let app = NSApplication::sharedApplication(mtm);
-    unsafe {
-        main_status_item
-            .button(mtm)
-            .expect("Could not retrieve button from NSStatusItem")
-            .setTitle(NSString::from_str("A").as_ref())
-    };
-
-    // configure the application delegate
-    let delegate = AppDelegate::new(mtm.clone(), main_status_item.clone());
-    let object = ProtocolObject::from_ref(delegate.as_ref());
-    app.setDelegate(Some(object));
-
-
-    let result = autoreleasepool(|_| {
-        unsafe { NSApplicationMain(argc, argv) }
-    });
-
-    // You can handle the result if needed, or directly exit
-    process::exit(result);
+    Ok((argc, argv))
 }
