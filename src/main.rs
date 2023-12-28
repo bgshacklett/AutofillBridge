@@ -5,6 +5,7 @@ use icrate::AppKit::{
     NSStatusBar,
     NSStatusItem,
     NSApplication,
+    NSApplicationMain,
     NSApplicationDelegate,
     NSSquareStatusItemLength,
 };
@@ -17,7 +18,7 @@ use icrate::Foundation::{
 };
 
 use objc2::runtime::ProtocolObject;
-use objc2::rc::Id;
+use objc2::rc::{autoreleasepool, Id};
 use objc2::{
     sel,
     declare_class,
@@ -27,6 +28,11 @@ use objc2::{
     DeclaredClass,
 };
 
+use std::env;
+use std::ffi::{CString, NulError};
+use std::os::raw::c_char;
+use std::ptr::NonNull;
+use std::process;
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -98,16 +104,39 @@ impl AppDelegate {
 
 
 // Main entry point
-fn main() {
-    let mtm: MainThreadMarker = MainThreadMarker::new().unwrap();
+fn main() -> Result<(), NulError> {
+    embed_plist::embed_info_plist!("Info.plist");
 
-    let app = NSApplication::sharedApplication(mtm);
+    let args: Vec<String> = env::args().collect();
+    let c_args: Vec<CString> = args.into_iter()
+        .map(CString::new)
+        .collect::<Result<Vec<_>, _>>()?;
+
+    let argv: Vec<*const c_char> = c_args.iter()
+        .map(|arg| arg.as_ptr())
+        .collect();
+
+    // Determine argc from the length of the argv vector
+    let argc = argv.len() as i32;
+
+    // Ensure all pointers are non-null and convert to NonNull<c_char>
+    let non_null_argv: Vec<NonNull<c_char>> = argv.iter()
+        .map(|&arg| NonNull::new(arg as *mut c_char).expect("Null pointer in argv"))
+        .collect();
+
+    // Convert the vector of NonNull<c_char> to NonNull<NonNull<c_char>>
+    let argv = NonNull::new(non_null_argv.as_ptr() as *mut NonNull<c_char>)
+        .expect("Null pointer in argv array");
 
     let status_bar = unsafe { NSStatusBar::systemStatusBar() };
     let main_status_item = unsafe {
         status_bar.statusItemWithLength(NSSquareStatusItemLength)
     };
 
+
+    let mtm: MainThreadMarker = MainThreadMarker::new().unwrap();
+
+    let app = NSApplication::sharedApplication(mtm);
     unsafe {
         main_status_item
             .button(mtm)
@@ -120,5 +149,11 @@ fn main() {
     let object = ProtocolObject::from_ref(delegate.as_ref());
     app.setDelegate(Some(object));
 
-    unsafe { app.run() };
+
+    let result = autoreleasepool(|_| {
+        unsafe { NSApplicationMain(argc, argv) }
+    });
+
+    // You can handle the result if needed, or directly exit
+    process::exit(result);
 }
