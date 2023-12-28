@@ -26,5 +26,13 @@
 	<string></string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.authentication-services-credential-provider-ui</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>credential_provider.MyCredentialProviderViewController</string>
+		<!-- Additional configuration for the extension -->
+	</dict>
 </dict>
 </plist>
