@@ -15,6 +15,7 @@ use std::ptr::NonNull;
 use std::process;
 
 mod app_delegate;
+mod credential_provider;
 
 
 // Main entry point

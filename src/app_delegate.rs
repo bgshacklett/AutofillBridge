@@ -24,6 +24,8 @@ use objc2::{
     DeclaredClass,
 };
 
+use crate::credential_provider;
+
 
 #[derive(Debug)]
 #[allow(unused)]

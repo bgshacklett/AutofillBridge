@@ -1,18 +1,5 @@
 
-// use objc2::declare::{
-//     ClassBuilder,
-// };
-// use objc2::rc::{
-//     Id,
-// };
-// use objc2::runtime::{
-//     // Class,
-//     // NSObject,
-//     // Ivar,
-//     Sel,
-// };
 use objc2::{
-    // class,
     declare_class,
     // msg_send,
     mutability,
@@ -20,11 +7,19 @@ use objc2::{
     ClassType,
     DeclaredClass,
 };
+// use objc2::runtime::{
+//     // Class,
+//     // NSObject,
+//     // Ivar,
+//     Sel,
+// };
 
 use icrate::AuthenticationServices::ASCredentialProviderViewController;
 
 
 // Declare your subclass
+
+
 declare_class! {
     pub struct MyCredentialProviderViewController;
 
@@ -34,21 +29,42 @@ declare_class! {
         const NAME: &'static str = "MyCredentialProviderViewController";
     }
 
-    impl DeclaredClass for MyCredentialProviderViewController {
-        // Your custom methods here
-    }
+    impl DeclaredClass for MyCredentialProviderViewController {}
+
+    // unsafe impl ASCredentialProviderViewController for MyCredentialProviderViewController {
+    //     #[method(prepareCredentialList:::)]
+    //     fn prepare_credential_list(
+    //         this: &Object,
+    //         _cmd: Sel,
+    //         service_identifiers: Id<NSArray, Strong>,
+    //     ) {
+    //         // Implement your logic for preparing the credential list
+    //     }
+
+    //     #[method(provideCredentialWithoutUserInteraction:::)]
+    //     fn provide_credential_without_user_interaction(
+    //         this: &Object,
+    //         _cmd: Sel,
+    //         credential_identity: Id<Object, Strong>,
+    //     ) {
+    //         // Implement your logic to provide a credential without user interaction
+    //     }
+
+    //     #[method(prepareInterfaceToProvideCredential:::)]
+    //     fn prepare_interface_to_provide_credential(
+    //         this: &Object,
+    //         _cmd: Sel,
+    //         credential_identity: Id<Object, Strong>,
+    //     ) {
+    //         // Implement your logic to prepare the interface for providing a specific credential
+    //     }
+
+    //     #[method(prepareInterfaceForExtensionConfiguration:::)]
+    //     fn prepare_interface_for_extension_configuration(
+    //         this: &Object,
+    //         _cmd: Sel,
+    //     ) {
+    //         // Implement your logic for preparing the interface for extension configuration
+    //     }
+    // }
 }
-
-// Register the subclass
-// pub fn register_my_credential_provider_view_controller() {
-//     unsafe {
-//         let superclass = class!(ASCredentialProviderViewController);
-//         let mut decl = ClassBuilder::new("MyCredentialProviderViewController", superclass).unwrap();
-
-//         // Add methods
-//         // decl.add_method(sel!(myCustomMethod:), my_custom_method as extern "C" fn(&MyCredentialProviderViewController, Sel));
-
-//         // Register class
-//         decl.register();
-//     }
-// }
